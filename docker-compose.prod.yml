@@ -1,0 +1,26 @@
+version: "3"
+services:
+  authentiq:
+    ports:
+      - 2000:2000
+    environment:
+      - NODE_ENV=production
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: npm start
+  authentiq-db:
+    user: root
+    image: mongo:4.2.3-bionic
+#    ports:
+#      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=authentiq
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      # seeding scripts
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+      # named volumes
+      - ./volumes/mongodb:/data/db
+      - ./mongoconfig:/data/configdb
