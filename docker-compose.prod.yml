@@ -1,16 +1,34 @@
 version: "3"
+
 services:
   authentiq:
+    image: done/auth:latest
     ports:
       - 2000:2000
     environment:
       - NODE_ENV=production
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.prod
     command: npm start
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        # Change the host url here
+        - "traefik.http.routers.auth-app.rule=Host(`auth.example.ir`)"
+        - "traefik.http.services.auth-app.loadbalancer.server.port=2000"
+        - "traefik.http.routers.auth-app.middlewares=auth"
+#        - "traefik.http.routers.my-app.entrypoints=websecure"
+        - "traefik.http.routers.auth-app.entrypoints=web"
+#        - "traefik.http.routers.my-app.tls=true"
+#        - "traefik.http.routers.my-app.tls.certresolver=leresolver"
+        # Change the password here
+        - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$05$$XhiymfvW5iDUQBsAvOysfeonXELsfqyObi/E7X30A7/LCJHA.P1SG" # user/password
+
   authentiq-db:
-    user: root
+#    user: root
     image: mongo:4.2.3-bionic
 #    ports:
 #      - 27017:27017
@@ -20,7 +38,18 @@ services:
 #      - MONGO_INITDB_ROOT_PASSWORD=admin
     volumes:
       # seeding scripts
-      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+      - mongo_entrypoint:/docker-entrypoint-initdb.d
       # named volumes
-      - ./volumes/mongodb:/data/db
-      - ./mongoconfig:/data/configdb
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    networks:
+      - traefik-public
+
+volumes:
+  mongo_entrypoint:
+  mongo_data:
+  mongo_config:
+
+networks:
+  traefik-public:
+    external: true
