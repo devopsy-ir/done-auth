@@ -44,6 +44,10 @@ services:
       - mongo_config:/data/configdb
     networks:
       - traefik-public
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
 
 volumes:
   mongo_entrypoint:
