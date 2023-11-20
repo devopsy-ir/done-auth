@@ -57,6 +57,13 @@ volumes:
   mongo_data:
   mongo_config:
 
+#  mongo_data:
+#    driver: local
+#    driver_opts:
+#      type: "nfs"
+#      o: addr=192.168.122.123,nolock,soft,rw
+#      device: ":/var/lib/docker/volumes/auth_mongo_data/_data"
+
 networks:
   traefik-public:
     external: true
